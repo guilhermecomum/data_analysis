@@ -27,29 +27,20 @@ def parse_sale(data):
 
 def ranking_salesman(sales, salesmans):
     ranking = {}
-    parsed_salesmans = []
-    parsed_sales = []
-
-    for salesman in salesmans:
-        parsed_salesmans.append(parse_salesman(salesman)[1])
-
-    for sale in sales:
-        parsed_sales.append(parse_sale(sale))
+    parsed_salesmans = salesmans_collection(salesmans)
+    parsed_sales = sales_collection(sales)
 
     for seller in parsed_salesmans:
-        ranking[seller] = 0
+        ranking[seller[1]] = 0
         for sale in parsed_sales:
-            if seller == sale[2]:
-                ranking[seller] += sale[1]
+            if seller[1] == sale[2]:
+                ranking[seller[1]] += sale[1]
 
     return sorted(ranking.items(), key=lambda x: x[1])
 
 
 def expensive_sale(sales):
-    parsed_sales = []
-
-    for sale in sales:
-        parsed_sales.append(parse_sale(sale))
+    parsed_sales = sales_collection(sales)
 
     expensive = parsed_sales[0]
 
@@ -58,3 +49,20 @@ def expensive_sale(sales):
             expensive = sale
 
     return expensive
+
+
+def sales_collection(sales):
+    parsed_sales = []
+
+    for sale in sales:
+        parsed_sales.append(parse_sale(sale))
+
+    return parsed_sales
+
+
+def salesmans_collection(salesmans):
+    parsed_salesmans = []
+    for salesman in salesmans:
+        parsed_salesmans.append(parse_salesman(salesman))
+
+    return parsed_salesmans
