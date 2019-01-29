@@ -1,5 +1,5 @@
 import unittest
-from data_analysis import read_file, calculate_sale, parse_salesman, parse_client, parse_sale
+from data_analysis import read_file, calculate_sale, parse_salesman, parse_client, parse_sale, ranking_salesman, expensive_sale
 
 class TestDataAnalysis(unittest.TestCase):
     def test_calculate_sale(self):
@@ -18,8 +18,15 @@ class TestDataAnalysis(unittest.TestCase):
         self.assertEqual(parse_sale('003ç10ç[1-10-100,2-30-2.50,3-40-3.10]çDiego'), ['10',1199.0,'Diego'])
         self.assertEqual(parse_sale('003ç08ç[1-34-10,2-33-1.50,3-40-0.10]çRenato'), ['08', 393.5,'Renato'])
 
+    def test_ranking_salesman(self):
+        sales = ['003ç10ç[1-10-100,2-30-2.50,3-40-3.10]çDiego','003ç08ç[1-34-10,2-33-1.50,3-40-0.10]çRenato']
+        salesmans = ['001ç1234567891234çDiegoç50000','001ç3245678865434çRenatoç40000.99']
+        self.assertEqual(ranking_salesman(sales, salesmans), [('Renato', 393.5), ('Diego', 1199.0)])
 
-    def
+    def test_expensive_sale(self):
+        sales = ['003ç10ç[1-10-100,2-30-2.50,3-40-3.10]çDiego','003ç08ç[1-34-10,2-33-1.50,3-40-0.10]çRenato']
+        self.assertEqual(expensive_sale(sales), ['10', 1199.0, 'Diego'])
+
 
 if __name__ == '__main__':
     unittest.main()
