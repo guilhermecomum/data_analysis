@@ -7,24 +7,28 @@ from watchdog.events import FileSystemEventHandler
 
 
 def get_files():
+    """
+    Get a list of files in $HOME/data/in/
+    """
     path = "{}/data/in/*.dat".format(os.environ["HOME"])
     return glob.glob(path)
 
 
 def read_file(file):
+    """
+    Read a file and store the content in a list
+    """
     content = []
-    try:
-        with open(file) as f:
-            for line in f:
-                content.append(line)
-    except IOError as exc:
-        if exc.errno != errno.EISDIR:
-            print("Ops, ocorreu um erro na leitura dos dados!")
-
+    with open(file) as f:
+        for line in f:
+            content.append(line)
     return content
 
 
 def calculate_sale(sale):
+    """
+    Calculate the sum of all sales items
+    """
     soma = 0
     items = sale.replace('[', '').replace(']', '')
     for item in items.split(','):
@@ -35,23 +39,33 @@ def calculate_sale(sale):
 
 
 def parse_salesman(salesman):
-    # [cpf, name, salary]
+    """
+    Parse salesmans data to list like: [cpf, name, salary]
+    """
     return salesman.replace('\n', '').split('ç')[1:]
 
 
 def parse_client(client):
-    # [cnpj, name, type]
+    """
+    Parse client data to list like: [cnpj, name, type]
+    """
     return client.replace('\n', '').split('ç')[1:]
 
 
 def parse_sale(data):
-    # [id, sum, salesman]
+    """
+    Parse sale data to list like: [id, sum, salesman]
+    """
     sale = data.replace('\n', '').split('ç')[1:]
     sale[1] = calculate_sale(sale[1])
     return sale
 
 
 def ranking_salesman(sales, salesmans):
+    """
+    Relates sales and salesman's and create a list, with salesmans and
+    sum of all his sales
+    """
     ranking = {}
     for seller in salesmans:
         ranking[seller[1]] = 0
@@ -63,6 +77,9 @@ def ranking_salesman(sales, salesmans):
 
 
 def expensive_sale(sales):
+    """
+    Calculate the most expensive sale and return a list with sale's data
+    """
     expensive = sales[0]
 
     for sale in sales:
@@ -73,6 +90,10 @@ def expensive_sale(sales):
 
 
 def parse_data(data):
+    """
+    Parse and store categorized data in dict with salesmans, clients
+    and sales keys
+    """
     collection = {'salesmans': [], 'clients': [], 'sales': []}
     for row in data:
         if row[:3] == '001':
@@ -85,6 +106,10 @@ def parse_data(data):
 
 
 def get_report_data(data):
+    """
+    Analyze collected data and create a dict with the main information
+    requested by client
+    """
     collection = parse_data(data)
     ranking = ranking_salesman(collection['sales'], collection['salesmans'])
     expensive = expensive_sale(collection['sales'])
@@ -98,6 +123,10 @@ def get_report_data(data):
 
 
 def generate_report(file, report):
+    """
+    Receive a file  his content parsed and analyzed, create a new file
+    with this information
+    """
     path = "{}/data/in/".format(os.environ["HOME"])
     out_path = "{}/data/out/".format(os.environ["HOME"])
     filename = file.replace(path, '').replace('.dat', '.done.dat')
@@ -115,6 +144,10 @@ def generate_report(file, report):
 
 
 def analysis():
+    """
+    Makes all the magic!
+    get all files, read content, make analysis and generate report
+    """
     files = get_files()
 
     for file in files:
@@ -122,11 +155,13 @@ def analysis():
         report = get_report_data(data)
         generate_report(file, report)
 
-    os.system('clear')
     print("Relatórios finalizado!")
 
 
 class Watcher:
+    """
+    Watch file changes in on $HOME/data/in
+    """
     path = "{}/data/in/".format(os.environ["HOME"])
 
     analysis()
@@ -148,6 +183,9 @@ class Watcher:
 
 
 class Handler(FileSystemEventHandler):
+    """
+    Handle file changes, observed by Watcher
+    """
 
     @staticmethod
     def on_any_event(event):
