@@ -10,17 +10,17 @@ def calculate_sale(sale):
 
 def parse_salesman(salesman):
     # [cpf, name, salary]
-    return salesman.split('ç')[1:]
+    return salesman.replace('\n', '').split('ç')[1:]
 
 
 def parse_client(client):
     # [cnpj, name, type]
-    return client.split('ç')[1:]
+    return client.replace('\n', '').split('ç')[1:]
 
 
 def parse_sale(data):
     # [id, sum, salesman]
-    sale = data.split('ç')[1:]
+    sale = data.replace('\n', '').split('ç')[1:]
     sale[1] = calculate_sale(sale[1])
     return sale
 
@@ -62,7 +62,20 @@ def sales_collection(sales):
 
 def salesmans_collection(salesmans):
     parsed_salesmans = []
+
     for salesman in salesmans:
         parsed_salesmans.append(parse_salesman(salesman))
 
     return parsed_salesmans
+
+
+def parse_data(data):
+    collection = {'salesmans': [], 'clients': [], 'sales': [] }
+    for row in data:
+        if row[:3] == '001':
+            collection['salesmans'].append(parse_salesman(row))
+        elif row[:3] == '002':
+            collection['clients'].append(parse_client(row))
+        elif row[:3] == '003':
+            collection['sales'].append(parse_sale(row))
+    return collection
