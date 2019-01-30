@@ -5,8 +5,8 @@ import data_analysis
 class TestDataAnalysis(unittest.TestCase):
     def setUp(self):
         self.collection = ['001ç1234567891234çDiegoç50000\n', '001ç3245678865434çRenatoç40000.99\n', '002ç2345675434544345çJose da SilvaçRural\n', '002ç2345675433444345çEduardo PereiraçRural\n', '003ç10ç[1-10-100,2-30-2.50,3-40-3.10]çDiego\n', '003ç08ç[1-34-10,2-33-1.50,3-40-0.10]çRenato\n']
-        self.salesmans = [['1234567891234', 'Diego', '50000'], ['3245678865434', 'Renato', '40000.99']],
-        self.clients = [['2345675434544345', 'Jose da Silva', 'Rural'], ['2345675433444345', 'Eduardo Pereira', 'Rural']],
+        self.salesmans = [['1234567891234', 'Diego', '50000'], ['3245678865434', 'Renato', '40000.99']]
+        self.clients = [['2345675434544345', 'Jose da Silva', 'Rural'], ['2345675433444345', 'Eduardo Pereira', 'Rural']]
         self.sales = [['10', 1199.0, 'Diego'], ['08', 393.5, 'Renato']]
 
     def test_calculate_sale(self):
@@ -39,6 +39,17 @@ class TestDataAnalysis(unittest.TestCase):
                 'salesmans': [['1234567891234', 'Diego', '50000'], ['3245678865434', 'Renato', '40000.99']],
                 'clients': [['2345675434544345', 'Jose da Silva', 'Rural'], ['2345675433444345', 'Eduardo Pereira', 'Rural']],
                 'sales': [['10', 1199.0, 'Diego'], ['08', 393.5, 'Renato']]
+            })
+
+    def test_get_report_data(self):
+        self.assertDictEqual.__self__.maxDiff = None
+        self.assertDictEqual(
+            data_analysis.get_report_data(self.collection),
+            {
+                'clients': 2,
+                'salesmans': 2,
+                'expensive': 10,
+                'worst': 'Renato'
             })
 
 if __name__ == '__main__':
