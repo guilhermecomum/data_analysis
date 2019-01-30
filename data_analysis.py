@@ -1,23 +1,25 @@
 import glob
 import errno
 import os
-import time
+from time import sleep
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 
-def read_files():
+def get_files():
     path = "{}/data/in/*.dat".format(os.environ["HOME"])
-    files = glob.glob(path)
+    return glob.glob(path)
+
+
+def read_file(file):
     content = []
-    for name in files:
-        try:
-            with open(name) as f:
-                for line in f:
-                    content.append(line)
-        except IOError as exc:
-            if exc.errno != errno.EISDIR:
-                print("Ops, ocorreu um erro na leitura dos dados!")
+    try:
+        with open(file) as f:
+            for line in f:
+                content.append(line)
+    except IOError as exc:
+        if exc.errno != errno.EISDIR:
+            print("Ops, ocorreu um erro na leitura dos dados!")
 
     return content
 
@@ -71,7 +73,7 @@ def expensive_sale(sales):
 
 
 def parse_data(data):
-    collection = {'salesmans': [], 'clients': [], 'sales': [] }
+    collection = {'salesmans': [], 'clients': [], 'sales': []}
     for row in data:
         if row[:3] == '001':
             collection['salesmans'].append(parse_salesman(row))
@@ -86,7 +88,6 @@ def get_report_data(data):
     collection = parse_data(data)
     ranking = ranking_salesman(collection['sales'], collection['salesmans'])
     expensive = expensive_sale(collection['sales'])
-    os.system('clear')
 
     return {
         'clients': len(collection['clients']),
@@ -96,17 +97,33 @@ def get_report_data(data):
     }
 
 
-def generate_report(report):
-    print("Amount of clients: ", report['clients'])
-    print("Amount of salesman: ", report['salesmans'])
-    print("ID of the most expensive sale: ", report['expensive'])
-    print("Worst salesman ever: ", report['worst'])
+def generate_report(file, report):
+    path = "{}/data/in/".format(os.environ["HOME"])
+    out_path = "{}/data/out/".format(os.environ["HOME"])
+    filename = file.replace(path, '').replace('.dat', '.done.dat')
+    output = out_path + filename
+
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
+
+    file = open(output, 'w+')
+    file.write("Amount of clients: %s \n" % report['clients'])
+    file.write("Amount of salesman: %s \n" % report['salesmans'])
+    file.write("ID of the most expensive sale: %s \n" % report['expensive'])
+    file.write("Worst salesman ever: %s \n" % report['worst'])
+    file.close()
 
 
 def analysis():
-    data = read_files()
-    report = get_report_data(data)
-    return generate_report(report)
+    files = get_files()
+
+    for file in files:
+        data = read_file(file)
+        report = get_report_data(data)
+        generate_report(file, report)
+
+    os.system('clear')
+    print("Relatórios finalizado!")
 
 
 class Watcher:
@@ -123,7 +140,7 @@ class Watcher:
         self.observer.start()
         try:
             while True:
-                time.sleep(5)
+                sleep(5)
         except:
             self.observer.stop()
 
@@ -138,6 +155,8 @@ class Handler(FileSystemEventHandler):
         if event.is_directory:
             return None
         else:
+            print("Atualizando relatórios")
+            sleep(1)
             analysis()
 
 
